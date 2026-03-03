@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>台大醫院教學部 | AI行政提升計畫問卷</title>
+    <!-- Tailwind CSS for modern styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&display=swap');
+        
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background-color: #F9F7F2; /* 北歐米色底 */
+            color: #334155;
+        }
+
+        .nordic-card {
+            background: white;
+            border-radius: 1.5rem;
+            border: 1px solid #D1CDC7;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        }
+
+        .primary-green { color: #4A6741; }
+        .bg-primary-green { background-color: #4A6741; }
+        .border-primary-green { border-color: #4A6741; }
+        
+        .rating-btn.active {
+            background-color: #4A6741;
+            color: white;
+            border-color: #4A6741;
+        }
+
+        /* 簡單的載入動畫 */
+        .loader {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #4A6741;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+            vertical-align: middle;
+            margin-right: 8px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+
+    <div class="max-w-3xl mx-auto">
+        <!-- 頁首標題區 -->
+        <header class="nordic-card p-8 mb-8 border-t-[10px] border-primary-green">
+            <div class="flex items-center gap-2 mb-4">
+                <i data-lucide="book-open" class="primary-green"></i>
+                <span class="text-xs font-bold tracking-[0.2em] text-[#8C7A6B]">台大醫院教學部</span>
+            </div>
+            <h1 class="text-2xl md:text-3xl font-bold mb-4 text-slate-800">
+                【生成式AI製作電子書協助院內行政業務提升計畫】<br>
+                <span class="primary-green">會議調查與需求投票</span>
+            </h1>
+            <p class="text-[#8C7A6B] text-sm leading-relaxed">
+                本計畫旨在透過 AI 技術解決同仁訓練品質並降低資訊負荷。請填寫您的出席意願與需求，並於會議時攜帶希望處理的「文本資料」。
+            </p>
+        </header>
+
+        <!-- 問卷表單 -->
+        <form id="surveyForm" class="space-y-8">
+            
+            <!-- A. 基本資料 -->
+            <section class="nordic-card p-8">
+                <div class="flex items-center gap-2 mb-6">
+                    <i data-lucide="user" class="primary-green"></i>
+                    <h2 class="text-lg font-bold primary-green">A. 基本資料</h2>
+                </div>
+                
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-slate-500 mb-1">您的姓名</label>
+                        <input type="text" name="name" required class="w-full p-3 bg-[#FDFDFD] border border-slate-200 rounded-xl focus:ring-1 focus:ring-[#4A6741] outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-500 mb-1">服務單位</label>
+                        <input type="text" name="department" required class="w-full p-3 bg-[#FDFDFD] border border-slate-200 rounded-xl focus:ring-1 focus:ring-[#4A6741] outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-500 mb-1">職稱</label>
+                        <input type="text" name="title" required class="w-full p-3 bg-[#FDFDFD] border border-slate-200 rounded-xl focus:ring-1 focus:ring-[#4A6741] outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-500 mb-1">生成式AI使用經驗</label>
+                        <select name="aiExperience" required class="w-full p-3 bg-[#FDFDFD] border border-slate-200 rounded-xl focus:ring-1 focus:ring-[#4A6741] outline-none appearance-none">
+                            <option value="">請選擇</option>
+                            <option value="無">無</option>
+                            <option value="有，1 次">有，1 次</option>
+                            <option value="有，2–5 次">有，2–5 次</option>
+                            <option value="有，>5 次">有，>5 次</option>
+                        </select>
+                    </div>
+                </div>
+            </section>
+
+            <!-- B. 會議時間 -->
+            <section class="nordic-card p-8">
+                <div class="flex items-center gap-2 mb-2">
+                    <i data-lucide="calendar" class="primary-green"></i>
+                    <h2 class="text-lg font-bold primary-green">B. 會議時間選擇</h2>
+                </div>
+                <p class="text-xs text-slate-400 mb-6">地點：東址 3 樓教學部討論室一號（可複選所有方便的時間）</p>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3" id="timeSlots">
+                    <!-- 時段選項 -->
+                    <label class="flex items-center p-4 border border-slate-100 rounded-xl cursor-pointer hover:bg-slate-50 transition-colors">
+                        <input type="checkbox" name="time" value="3/5(四)14:00-15:00" class="w-4 h-4 accent-[#4A6741] mr-3">
+                        <span class="text-sm">3/5 (四) 14:00-15:00</span>
+                    </label>
+                    <label class="flex items-center p-4 border border-slate-100 rounded-xl cursor-pointer hover:bg-slate-50 transition-colors">
+                        <input type="checkbox" name="time" value="3/6(五)14:00-15:00" class="w-4 h-4 accent-[#4A6741] mr-3">
+                        <span class="text-sm">3/6 (五) 14:00-15:00</span>
+                    </label>
+                    <label class="flex items-center p-4 border border-slate-100 rounded-xl cursor-pointer hover:bg-slate-50 transition-colors">
+                        <input type="checkbox" name="time" value="3/9(一)14:00-15:00" class="w-4 h-4 accent-[#4A6741] mr-3">
+                        <span class="text-sm">3/9 (一) 14:00-15:00</span>
+                    </label>
+                    <label class="flex items-center p-4 border border-slate-100 rounded-xl cursor-pointer hover:bg-slate-50 transition-colors">
+                        <input type="checkbox" name="time" value="3/11(三)14:00-15:00" class="w-4 h-4 accent-[#4A6741] mr-3">
+                        <span class="text-sm">3/11 (三) 14:00-15:00</span>
+                    </label>
+                    <label class="flex items-center p-4 border border-slate-100 rounded-xl cursor-pointer hover:bg-slate-50 transition-colors">
+                        <input type="checkbox" name="time" value="3/13(五)14:00-15:00" class="w-4 h-4 accent-[#4A6741] mr-3">
+                        <span class="text-sm">3/13 (五) 14:00-15:00</span>
+                    </label>
+                    <label class="flex items-center p-4 border border-slate-100 rounded-xl cursor-pointer hover:bg-slate-50 transition-colors">
+                        <input type="checkbox" name="time" value="3/16(一)14:00-15:00" class="w-4 h-4 accent-[#4A6741] mr-3">
+                        <span class="text-sm">3/16 (一) 14:00-15:00</span>
+                    </label>
+                </div>
+            </section>
+
+            <!-- C. 需求類型 -->
+            <section class="nordic-card p-8">
+                <div class="flex items-center gap-2 mb-6">
+                    <i data-lucide="clipboard-check" class="primary-green"></i>
+                    <h2 class="text-lg font-bold primary-green">C. 需求類型評估</h2>
+                </div>
+
+                <div class="space-y-8">
+                    <!-- 評分題 1 -->
+                    <div>
+                        <p class="text-sm mb-4">1. 大量理解文本的工具，製作清楚正確的摘要</p>
+                        <div class="flex justify-between max-w-xs mx-auto rating-group" data-target="need1">
+                            <button type="button" data-val="1" class="rating-btn w-10 h-10 rounded-full border border-slate-200 text-xs">1</button>
+                            <button type="button" data-val="2" class="rating-btn w-10 h-10 rounded-full border border-slate-200 text-xs">2</button>
+                            <button type="button" data-val="3" class="rating-btn w-10 h-10 rounded-full border border-slate-200 text-xs active">3</button>
+                            <button type="button" data-val="4" class="rating-btn w-10 h-10 rounded-full border border-slate-200 text-xs">4</button>
+                            <button type="button" data-val="5" class="rating-btn w-10 h-10 rounded-full border border-slate-200 text-xs">5</button>
+                        </div>
+                    </div>
+                    <!-- 評分題 2 -->
+                    <div>
+                        <p class="text-sm mb-4">2. 在院內的安全環境內使用生成式AI，避免資料外洩</p>
+                        <div class="flex justify-between max-w-xs mx-auto rating-group" data-target="need2">
+                            <button type="button" data-val="1" class="rating-btn w-10 h-10 rounded-full border border-slate-200 text-xs">1</button>
+                            <button type="button" data-val="2" class="rating-btn w-10 h-10 rounded-full border border-slate-200 text-xs">2</button>
+                            <button type="button" data-val="3" class="rating-btn w-10 h-10 rounded-full border border-slate-200 text-xs active">3</button>
+                            <button type="button" data-val="4" class="rating-btn w-10 h-10 rounded-full border border-slate-200 text-xs">4</button>
+                            <button type="button" data-val="5" class="rating-btn w-10 h-10 rounded-full border border-slate-200 text-xs">5</button>
+                        </div>
+                    </div>
+                    <!-- 評分題 3 -->
+                    <div>
+                        <p class="text-sm mb-4">3. 能夠將複雜文本轉成方便立即閱讀的電子書或簡報</p>
+                        <div class="flex justify-between max-w-xs mx-auto rating-group" data-target="need3">
+                            <button type="button" data-val="1" class="rating-btn w-10 h-10 rounded-full border border-slate-200 text-xs">1</button>
+                            <button type="button" data-val="2" class="rating-btn w-10 h-10 rounded-full border border-slate-200 text-xs">2</button>
+                            <button type="button" data-val="3" class="rating-btn w-10 h-10 rounded-full border border-slate-200 text-xs active">3</button>
+                            <button type="button" data-val="4" class="rating-btn w-10 h-10 rounded-full border border-slate-200 text-xs">4</button>
+                            <button type="button" data-val="5" class="rating-btn w-10 h-10 rounded-full border border-slate-200 text-xs">5</button>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-slate-500 mb-2">4. 上述功能外，我還想要...</label>
+                        <textarea name="other" rows="3" class="w-full p-4 bg-[#FDFDFD] border border-slate-200 rounded-xl focus:ring-1 focus:ring-[#4A6741] outline-none"></textarea>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 提交按鈕 -->
+            <div class="text-center py-10">
+                <button type="submit" id="submitBtn" class="bg-primary-green text-white px-16 py-4 rounded-full font-bold shadow-lg hover:bg-[#3d5535] transition-all transform active:scale-95">
+                    提交問卷回覆
+                </button>
+            </div>
+        </form>
+
+        <!-- 成功提示視窗 -->
+        <div id="successModal" class="hidden fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center p-4">
+            <div class="bg-white p-10 rounded-3xl max-w-sm w-full text-center shadow-2xl">
+                <i data-lucide="check-circle" class="w-12 h-12 primary-green mx-auto mb-4"></i>
+                <h3 class="text-xl font-bold mb-2">提交成功</h3>
+                <p class="text-slate-500 text-sm mb-8">感謝您的參與，會議資訊將於確認後發送行事曆通知。</p>
+                <button onclick="location.reload()" class="w-full py-3 border border-primary-green primary-green rounded-full font-bold">關閉</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 初始化圖示
+        lucide.createIcons();
+
+        // 處理評分按鈕切換
+        const ratings = { need1: 3, need2: 3, need3: 3 };
+        document.querySelectorAll('.rating-group').forEach(group => {
+            const btns = group.querySelectorAll('.rating-btn');
+            const target = group.dataset.target;
+            btns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    btns.forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    ratings[target] = btn.dataset.val;
+                });
+            });
+        });
+
+        // 提交表單邏輯
+        const form = document.getElementById('surveyForm');
+        const submitBtn = document.getElementById('submitBtn');
+        const GAS_URL = 'https://script.google.com/macros/s/AKfycbz3TE8MIoEuX5mIUmY7PctdKWGzELNQWbYsxCnUiqZGKnEd2xYcjlYVQvsb9VWFBDpf/exec';
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            // 讀取中狀態
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<span class="loader"></span> 傳送中...';
+
+            const formData = new FormData(form);
+            const selectedTimes = [];
+            form.querySelectorAll('input[name="time"]:checked').forEach(cb => selectedTimes.push(cb.value));
+
+            const payload = {
+                timestamp: new Date().toLocaleString(),
+                name: formData.get('name'),
+                department: formData.get('department'),
+                title: formData.get('title'),
+                aiExperience: formData.get('aiExperience'),
+                time: selectedTimes.join(', '),
+                need1: ratings.need1,
+                need2: ratings.need2,
+                need3: ratings.need3,
+                other: formData.get('other')
+            };
+
+            try {
+                // 使用 fetch 發送到 GAS
+                // 註：GAS POST 可能會有 CORS 問題，建議 GAS 端要使用 doPost 並回傳 JSONP 或特定 Header
+                await fetch(GAS_URL, {
+                    method: 'POST',
+                    mode: 'no-cors', // 因為 GAS 轉向機制，通常使用 no-cors 即可寫入資料
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                // 顯示成功彈窗
+                document.getElementById('successModal').classList.remove('hidden');
+            } catch (err) {
+                console.error(err);
+                alert('發生錯誤，請稍後再試。');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '提交問卷回覆';
+            }
+        });
+    </script>
+</body>
+</html>
