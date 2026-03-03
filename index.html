@@ -173,4 +173,117 @@
                             <button type="button" data-val="1" class="rating-btn w-10 h-10 rounded-full border border-slate-200 text-xs">1</button>
                             <button type="button" data-val="2" class="rating-btn w-10 h-10 rounded-full border border-slate-200 text-xs">2</button>
                             <button type="button" data-val="3" class="rating-btn w-10 h-10 rounded-full border border-slate-200 text-xs active">3</button>
-                            <button type="button" data-val="4" class="rating-btn w-10 h-10 rounded-full border border
+                            <button type="button" data-val="4" class="rating-btn w-10 h-10 rounded-full border border-slate-200 text-xs">4</button>
+                            <button type="button" data-val="5" class="rating-btn w-10 h-10 rounded-full border border-slate-200 text-xs">5</button>
+                        </div>
+                    </div>
+                    <!-- Q3 -->
+                    <div>
+                        <p class="text-sm text-slate-600 mb-4">3. 將複雜文本轉成電子書或簡報</p>
+                        <div class="flex justify-between max-w-xs mx-auto rating-group" data-target="need3">
+                            <button type="button" data-val="1" class="rating-btn w-10 h-10 rounded-full border border-slate-200 text-xs">1</button>
+                            <button type="button" data-val="2" class="rating-btn w-10 h-10 rounded-full border border-slate-200 text-xs">2</button>
+                            <button type="button" data-val="3" class="rating-btn w-10 h-10 rounded-full border border-slate-200 text-xs active">3</button>
+                            <button type="button" data-val="4" class="rating-btn w-10 h-10 rounded-full border border-slate-200 text-xs">4</button>
+                            <button type="button" data-val="5" class="rating-btn w-10 h-10 rounded-full border border-slate-200 text-xs">5</button>
+                        </div>
+                    </div>
+
+                    <div class="pt-4 border-t border-dashed border-slate-200">
+                        <label class="block text-sm font-medium text-slate-400 mb-2">4. 其他具體需求或建議</label>
+                        <textarea name="other" rows="3" class="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:border-[#4A6741] resize-none" placeholder="請填寫您的想法..."></textarea>
+                    </div>
+                </div>
+            </section>
+
+            <button type="submit" id="submitBtn" class="w-full bg-[#4A6741] text-white py-4 rounded-full font-bold shadow-lg hover:opacity-90 transition-all transform active:scale-95">
+                提交問卷回覆
+            </button>
+        </form>
+
+        <!-- 成功 Modal -->
+        <div id="successModal" class="hidden fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+            <div class="bg-white p-10 rounded-3xl max-w-sm w-full text-center shadow-2xl">
+                <div class="w-16 h-16 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <i data-lucide="check" class="w-8 h-8 text-[#4A6741]"></i>
+                </div>
+                <h3 class="text-xl font-bold mb-2">回覆已成功送出</h3>
+                <p class="text-slate-400 text-sm mb-8">感謝您的參與，會議確認後將會發送通知。</p>
+                <button onclick="location.reload()" class="w-full py-3 bg-[#4A6741] text-white rounded-full font-bold">返回問卷</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 初始化 Lucide 圖示
+        lucide.createIcons();
+
+        // 評分按鈕互動邏輯
+        const ratings = { need1: 3, need2: 3, need3: 3 };
+        document.querySelectorAll('.rating-group').forEach(group => {
+            const btns = group.querySelectorAll('.rating-btn');
+            const target = group.dataset.target;
+            btns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    btns.forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    ratings[target] = btn.dataset.val;
+                });
+            });
+        });
+
+        const form = document.getElementById('surveyForm');
+        const submitBtn = document.getElementById('submitBtn');
+        
+        // 使用您最新的 GAS 部署網址
+        const GAS_URL = 'https://script.google.com/macros/s/AKfycbw4Gmuv_864Xt18AGKQoWgyEU0XrDzZZEUIvOET6HGNoPTSA7yaS71MneFD03bwF1Ga/exec';
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            // 設定讀取狀態
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<span class="loader"></span> 傳送中...';
+
+            const formData = new FormData(form);
+            const times = [];
+            form.querySelectorAll('input[name="time"]:checked').forEach(cb => times.push(cb.value));
+
+            // 構建傳送資料 (對應 Canvas 中 GAS 腳本的 rowData 順序)
+            const payload = {
+                timestamp: new Date().toLocaleString('zh-TW', { hour12: false }),
+                name: formData.get('name'),
+                department: formData.get('department'),
+                title: formData.get('title'),
+                aiExperience: formData.get('aiExperience'),
+                time: times.join(', '),
+                need1: ratings.need1,
+                need2: ratings.need2,
+                need3: ratings.need3,
+                other: formData.get('other')
+            };
+
+            try {
+                // 使用 fetch 發送到 GAS
+                // 註：GAS POST 在 mode: 'no-cors' 下回傳結果會是隱藏的，但資料能成功寫入
+                await fetch(GAS_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    cache: 'no-cache',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                // 顯示成功彈窗
+                document.getElementById('successModal').classList.remove('hidden');
+            } catch (err) {
+                console.error('Error:', err);
+                alert('傳送時發生預期外錯誤，請確認網路連線或聯絡資訊管理員。');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '提交問卷回覆';
+            }
+        });
+    </script>
+</body>
+</html>
